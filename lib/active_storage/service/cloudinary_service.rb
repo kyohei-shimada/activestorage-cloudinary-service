@@ -3,21 +3,15 @@ require 'open-uri'
 
 module ActiveStorage
   class Service::CloudinaryService < Service
-    # FIXME: implement setup for private resource type
-    # FIXME: allow configuration via cloudinary url
-    def initialize(cloud_name:, api_key:, api_secret:, options: {})
-      options.merge!(
-        cloud_name: cloud_name,
-        api_key: api_key,
-        api_secret: api_secret
-      )
+    def initialize(upload_options: {}, **options)
+      @upload_options = upload_options
       Cloudinary.config(options)
-      # Cloudinary.config_from_url(url)
     end
 
     def upload(key, io, checksum: nil)
       instrument :upload, key: key, checksum: checksum do
-        Cloudinary::Uploader.upload(io, public_id: key)
+        # FIXME: cannot reflect metadata of transformed images to active_storage_blobs
+        Cloudinary::Uploader.upload(io, @upload_options.merge(public_id: key))
       end
     end
 

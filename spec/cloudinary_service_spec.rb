@@ -37,6 +37,26 @@ RSpec.describe ActiveStorage::Service::CloudinaryService do
 
       subject.upload(key, file, checksum: checksum)
     end
+
+    context 'when "config" set upload_options' do
+      let(:config) do
+        {
+          cloud_name: 'name',
+          api_key:    'abcde',
+          api_secret: '12345',
+          upload_options: {
+            width: 500,
+            height: 1000
+          }
+        }
+      end
+
+      it 'calls the upload method on the cloudinary sdk with the given args and upload_options' do
+        expect(Cloudinary::Uploader).to receive(:upload).with(file, config[:upload_options].merge(public_id: key))
+
+        subject.upload(key, file)
+      end
+    end
   end
 
   describe '#download' do
